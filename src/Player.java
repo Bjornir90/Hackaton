@@ -24,8 +24,6 @@ class Player {
 			ArrayList<Entity> entityArrayList = new ArrayList<>();
 			Hunter hunter = null;
 			Catcher catcher = null;
-			int busterTargetX = 0, busterTargetY = 0, busterTargetID = -1;
-			int busterX = 0, busterY = 0, busterState = 0;
 			for (int i = 0; i < entities; i++) {
 				int entityId = in.nextInt(); // buster id or ghost id
 				int x = in.nextInt();
@@ -38,11 +36,11 @@ class Player {
 					Ghost currentGhost = new Ghost(x, y, state, entityId, entityType);//x, y, stamina, ID
 					entityArrayList.add(currentGhost);
 				} else if(entityType == myTeamId){
-					if(entityId == 0){
+					if(entityId == 0+myTeamId*3){
 						hunter = new Hunter(x, y, state, entityId, entityType);
-					} else if(entityId == 1){
+					} else if(entityId == 1+myTeamId*3){
 						catcher = new Catcher(x, y, state, entityId, entityType);
-					} else if(entityId == 2){
+					} else if(entityId == 2+myTeamId*3){
 						//supportX = x;
 						//supportY = y;
 					}
@@ -112,6 +110,7 @@ class Hunter extends Buster{
 	@Override
 	public void computeTarget(ArrayList<Entity> entities) {
 		int currentLowestStamina = 41;
+		target = null;
 		for(Entity e : entities){
 			if(e.teamId == -1 && e.state < currentLowestStamina && e.state > 0){
 				target = (Ghost) e;
@@ -133,6 +132,9 @@ class Hunter extends Buster{
 				command = "MOVE " + target.x + " " + target.y;
 			}
 			System.err.println("Hunter command : "+command);
+		} else {
+			int movementX = (int) (Math.random()*16000), movementY = (int) (Math.random()*9000);
+			command = "MOVE "+movementX+" "+movementY;
 		}
 		return command;
 	}
@@ -148,6 +150,7 @@ class Catcher extends Buster{
 
 	@Override
 	public void computeTarget(ArrayList<Entity> entities) {
+		target = null;
 		for(Entity e : entities) {
 			if(e.teamId == -1 && e.state == 0){
 				target = (Ghost) e;
