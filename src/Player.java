@@ -344,9 +344,12 @@ class Support extends Buster{
 	@Override
 	public void computeTarget(ArrayList<Entity> entities) {
 		target = null;
-		if(target == null){
-			target = new Entity((int)(Math.random()*16000), (int)(Math.random()*9000), -1, -1, -2);
+		for(Entity e : entities) {
+			if(e.teamId == -1 && e.state == 0){
+				target = e;
+			}
 		}
+		if(target == null) target = catcher;
 	}
 
 	public void computeStunTarget(ArrayList<Entity> entities) {
@@ -368,7 +371,17 @@ class Support extends Buster{
 	public String computeCommand() {
 		String command = reconCommand();
 		if(command == null){
-			command = "MOVE "+target.x + " "+target.y+" Roger roger";
+			if(stunTarget != null) {
+				if (Utils.distance(stunTarget, this) <= Player.MAXRANGE && stunTarget.state != 2 && decompte == 0) {
+					command = "STUN " + stunTarget.id;
+					decompte = 20;
+				} else {
+					command = "MOVE " + stunTarget.x + " " + stunTarget.y;
+				}
+			} else {
+				command = "MOVE " + (int) (target.x + Player.MAXRANGE * Math.cos(angle)) + " " + (int) (target.y + Player.MAXRANGE * Math.sin(angle));
+			}
+			this.angle += 1;
 		}
 		return command;
 	}
